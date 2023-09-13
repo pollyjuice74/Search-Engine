@@ -1,0 +1,80 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f2f2f2;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.container {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  height: 90vh;
+  justify-content: center;
+}
+
+#title {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  padding: 5px;
+}
+
+#search-box {
+  background-color: #fff;
+  border-radius: 25px;
+  padding: 10px;
+  width: 400px;
+  max-width: 80%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#search-input {
+  border: none;
+  width: 100%;
+  padding: 10px;
+  font-size: 1.2rem;
+  border-radius: 20px;
+  outline: none;
+}
+
+#search-button {
+  background-color: #4285f4;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#search-button:hover {
+  background-color: #357ae8;
+}
+
+#search_results {
+  margin-left: 20px; /* Add indentation to the results */
+}
+
+.search_result {
+  border: 1px solid #ccc; /* Add a border around each result */
+  padding: 10px; /* Add padding to separate elements */
+  margin-bottom: 10px; /* Add margin to separate results */
+  margin-left: 20px;
+  margin-right: 20px;
+  text-align: left;
+}
+
+.search_result a {
+  font-size: 18px;
+  text-decoration: none; /* Remove underline from links */
+  font-weight: bold; /* Make the titles bold */
+  color: #1a0dab; /* Use Google's link color */
+}
+
+.search_result p {
+  font-size: 10px; /* Adjust font size for the URL */
+  color: #545454; /* Use a grayish color for the URL */
+  margin-top: 5px; /* Add space between title and URL */
+}

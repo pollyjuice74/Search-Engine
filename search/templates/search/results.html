@@ -1,0 +1,20 @@
+{% extends 'search/layout.html' %} {% load static %} {% block body %}
+<h1 id="title">Wiki Data</h1>
+
+{% if results %}
+<div>
+  <p>Searched for <b>"{{ search_query }}"</b></p>
+</div>
+
+  <div class="search_results">
+    {% for url, title in results.items %}
+    <div class="search_result">
+      <a href="{{ url }}">{{ title }}</a>
+      <p>{{ url }}</p>
+    </li>
+    </div>
+    {% endfor %}
+  </div>
+{% else %}
+<p>No data available for <b>"{{ search_query }}"</b></p>
+{% endif %} {% endblock %}
