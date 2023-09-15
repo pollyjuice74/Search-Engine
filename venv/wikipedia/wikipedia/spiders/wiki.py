@@ -3,11 +3,17 @@ from urllib.parse import urlparse, urljoin
 from scrapy import signals
 
 
-
 class WikiSpider(scrapy.Spider):
     name = "wiki"
     allowed_domains = ["en.wikipedia.org"]
-    start_urls = ["https://en.wikipedia.org/wiki/Python_(programming_language)"]
+    start_urls = ["https://en.wikipedia.org/wiki/Python_(programming_language)",
+                  "https://en.wikipedia.org/wiki/Chemistry",
+                  "https://en.wikipedia.org/wiki/Biology",
+                  "https://en.wikipedia.org/wiki/Physics",
+                  "https://en.wikipedia.org/wiki/Animal",
+                  "https://en.wikipedia.org/wiki/Computer",
+                  "https://en.wikipedia.org/wiki/Mathematics",
+                  ]
     visited = set()
     max_pages = 3
     page_count = 0
@@ -43,7 +49,7 @@ class WikiSpider(scrapy.Spider):
         }
 
         # Check page count
-        if url == "https://en.wikipedia.org/wiki/Python_(programming_language)":
+        if url in self.start_urls:
             # Crawl links
             for link in links:
                 yield scrapy.Request(link, callback=self.parse)

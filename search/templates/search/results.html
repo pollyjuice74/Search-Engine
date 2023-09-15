@@ -2,6 +2,17 @@
 <h1 id="title">Wiki Data</h1>
 
 {% if results %}
+<form method="post" action="{% url 'search' %}">
+    {% csrf_token %}
+    <input
+      type="search"
+      name="q"
+      id="search-box"
+      placeholder="{{ search_query }}"
+    />
+    <button id="search-button" type="submit">Search</button>
+  </form>
+
 <div>
   <p>Searched for <b>"{{ search_query }}"</b></p>
 </div>

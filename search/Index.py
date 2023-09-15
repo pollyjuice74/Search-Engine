@@ -16,10 +16,10 @@ json_file_path = os.path.join(current_directory, '..', 'venv', 'wikipedia', 'wik
 
 class Index:
     def __init__(self):
-        self.data = self.add_documents() # Opened data
+        self.data = None # url-> {titles -> title, content -> content, links -> links}
         self.word_buckets = dict() # word -> documents containing word
         self.doc_index = dict() # document -> {word -> frequency for word in document words}
-        self.page_ranks = self.get_page_ranks()
+        self.page_ranks = None # page -> page_rank_score
 
 
     def search(self, query):
@@ -34,27 +34,39 @@ class Index:
     
     
     def sort_documents(self, documents, idfs, query):
-        scores = {document: (0, 0) for document in documents}
+        scores = { document: {
+                    "exact_matches": 0,
+                    "title_matches": 0,
+                    "tf_idf_score": 0,
+            } for document in documents
+        }
 
         for word in query:
 
             for document in documents:
-                # Title word matches
                 if self.data[document]["title"]:
                     title_words = self.tokenize(self.data[document]["title"])
+
+                # Exact title word matches
+                    exact_matches = sum(1 for title_word in title_words if word == title_word)
+
+                # Title word matches
                 title_matches = self.word_matches(title_words, word) if title_words else 0
 
                 # Calculate tf-idf score 
                 tf = self.doc_index[document].get(word, 0) / self.doc_index[document]["word_count"] # Query term density calculation
                 document_score = tf * idfs[word]
 
-                scores[document] = (scores[document][0] + title_matches, scores[document][1] + document_score) 
+                # Update scores
+                scores[document]["exact_matches"] += exact_matches   
+                scores[document]["title_matches"] += title_matches 
+                scores[document]["tf_idf_score"] += document_score
         
-        scores = sorted(scores.keys(), key=lambda x: (-scores[x][0], -scores[x][1]))[:50] # Sort by tf-idf
+        sorted_scores = sorted(scores.keys(), key=lambda x: (-scores[x]["exact_matches"], -scores[x]["title_matches"], -scores[x]["tf_idf_score"]))[:20] # Sort by title word matches, then tf-idf, get top n
 
         print("Sorted documents...")
 
-        return sorted(scores, key=lambda x: -self.page_ranks[x])[:10] # Sort by PageRank
+        return sorted(sorted_scores, key=lambda x: (-scores[x]["exact_matches"], -scores[x]["title_matches"],-self.page_ranks[x]))[:10] # Sort by PageRank
     
 
     def word_matches(self, document_words, word):
@@ -75,7 +87,7 @@ class Index:
 
         for word in query:
             word_freq = sum(1 for document in documents if word in self.doc_index[document])
-            idf = math.log(len(documents) / word_freq)
+            idf = math.log(len(documents) / word_freq) if word_freq else 0
             idfs[word] = idf
 
         print("Calculated idfs...")
@@ -96,6 +108,10 @@ class Index:
 
 
     def create_indexes(self):
+        self.data = self.add_documents()
+        print(len(self.data))
+        self.page_ranks = self.get_page_ranks()
+
         file_words = { # Create url -> tokens dict
             filename: self.tokenize(self.data[filename]["content"])
             for filename in self.data
@@ -133,10 +149,12 @@ class Index:
 
         with open(path, 'rb') as file:
             data = pickle.load(file)
+            self.data = data.get("data", {})
             self.word_buckets = data.get("word_buckets", {})
             self.doc_index = data.get("doc_index", {})
+            self.page_ranks = data.get("page_ranks", {})
 
-            print("Loading files...")
+            print("Loaded files...")
 
 
     def save_data(self):
@@ -144,8 +162,10 @@ class Index:
 
         with open(path, 'wb') as file:
             data = {
+                "data": self.data,
                 "word_buckets": self.word_buckets,
                 "doc_index": self.doc_index,
+                "page_ranks": self.page_ranks
             }
 
             pickle.dump(data, file)
@@ -157,10 +177,11 @@ class Index:
         damping_factor = 0.85
 
         page_ranks = {page: 0 for page in self.data}
+
         current_page = random.choice(list(self.data.keys()))
 
         # Sampling Page Ranks
-        for _ in range(1000):
+        for _ in range(10000):
             dist = self.transition_model(self.data, current_page, damping_factor)
 
             for page in self.data:
@@ -174,8 +195,10 @@ class Index:
             page_ranks[p] /= total_ranks
 
         print("Calculated PageRanks...")
+        #print(self.page_ranks)
+        #print(len(self.page_ranks))
 
-        return page_ranks
+        return page_ranks # Initialize page ranks
 
 
     def transition_model(self, corpus, page, damping_factor):  
@@ -240,9 +263,9 @@ class Index:
                 link for link in pages[filename]["links"]
                 if link in pages
             )
-            
-        print("Cleaned data...")
 
+        print("Cleaned data...")
+            
         return pages
 
 
@@ -250,10 +273,17 @@ def main():
     index = Index()
 
     #index.create_indexes()
+
     index.load_data()
+
+    print(len(index.data))
+    print(len(index.word_buckets))
+    print(len(index.doc_index))
+    print(len(index.page_ranks))
+
+    #index.save_data()
+    
     print(index.search(query="Python language"))
 
 
-#main()
-#if __name__ == "__main__":
-#    main()
+#main() 

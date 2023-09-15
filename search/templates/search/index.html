@@ -1,15 +1,16 @@
 {% extends 'search/layout.html' %} {% load static %} {% block body %}
-
-<h1 id="title">Search Engine</h1>
-<form method="post" action="{% url 'search' %}">
-  {% csrf_token %}
-  <input
-    type="search"
-    name="q"
-    id="search-box"
-    placeholder="Search by key word..."
-  />
-  <button id="search-button" type="submit">Search</button>
-</form>
+<div class="container">
+  <h1 id="title">Search Engine</h1>
+  <form method="post" action="{% url 'search' %}">
+    {% csrf_token %}
+    <input
+      type="search"
+      name="q"
+      id="search-box"
+      placeholder="Search by key word..."
+    />
+    <button id="search-button" type="submit">Search</button>
+  </form>
+</div>
 
 {% endblock %}
